@@ -32,7 +32,27 @@ export function AuthProvider({ children }) {
       .select('*')
       .eq('id', userId)
       .single()
-    setOrganizer(data)
+
+    if (data) {
+      setOrganizer(data)
+    } else {
+      // Organizer row missing (OAuth user where trigger didn't run) — create it now
+      const { data: { user } } = await supabase.auth.getUser()
+      const meta = user?.user_metadata || {}
+      const { data: created } = await supabase
+        .from('organizers')
+        .upsert({
+          id: userId,
+          email: user?.email || '',
+          name: meta.full_name || meta.name || user?.email?.split('@')[0] || '',
+          phone: meta.phone || '',
+          status: user?.email === ADMIN_EMAIL ? 'approved' : 'pending',
+        }, { onConflict: 'id', ignoreDuplicates: true })
+        .select()
+        .single()
+      setOrganizer(created)
+    }
+
     setLoading(false)
   }
 

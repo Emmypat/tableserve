@@ -47,7 +47,7 @@ export default function Login() {
           {error && <div className="bg-red-50 text-red-600 border border-red-200 rounded-xl px-4 py-3 mb-4 text-sm">{error}</div>}
 
           <button onClick={handleGoogle} disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium hover:bg-gray-50 transition disabled:opacity-50 mb-4">
+            className="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-700 font-medium shadow-sm hover:shadow hover:bg-gray-50 transition disabled:opacity-50 mb-4">
             <GoogleIcon />
             {googleLoading ? 'Redirecting...' : 'Continue with Google'}
           </button>

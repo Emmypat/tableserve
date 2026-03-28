@@ -11,16 +11,17 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session) fetchOrganizer(session.user.id)
-      else setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      if (session) fetchOrganizer(session.user.id)
-      else { setOrganizer(null); setLoading(false) }
+    // onAuthStateChange handles initial session + OAuth code exchange — no getSession() needed
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+        setSession(session)
+        if (session) fetchOrganizer(session.user.id)
+        else setLoading(false)
+      } else if (event === 'SIGNED_OUT') {
+        setSession(null)
+        setOrganizer(null)
+        setLoading(false)
+      }
     })
 
     return () => subscription.unsubscribe()

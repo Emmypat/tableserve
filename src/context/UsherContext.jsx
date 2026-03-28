@@ -5,7 +5,6 @@ const STORAGE_KEY = 'tableserve_usher'
 const UsherContext = createContext(null)
 
 export function UsherProvider({ children }) {
-  // Lazy init reads from sessionStorage so refresh doesn't logout usher
   const [usher, setUsher] = useState(() => {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY)

@@ -1,33 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   * { box-sizing: border-box; }
-  body { font-family: 'Inter', system-ui, sans-serif; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #FAF7F4; color: #2C1810; }
+  h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-green-dark text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-mid transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-burgundy text-white px-6 py-3 rounded-full font-semibold hover:bg-burgundy-mid transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
   }
   .btn-gold {
-    @apply bg-gold text-white px-6 py-3 rounded-xl font-semibold hover:bg-gold-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gold-warm text-white px-6 py-3 rounded-full font-semibold hover:bg-gold-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm;
   }
   .btn-outline {
-    @apply border-2 border-green-dark text-green-dark px-6 py-3 rounded-xl font-semibold hover:bg-green-pale transition-colors;
+    @apply border-2 border-burgundy text-burgundy px-6 py-3 rounded-full font-semibold hover:bg-burgundy-pale transition-all;
   }
   .btn-danger {
-    @apply bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors;
+    @apply bg-red-600 text-white px-4 py-2 rounded-full font-medium hover:bg-red-700 transition-all;
   }
   .input-field {
-    @apply w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-green-dark transition;
+    @apply w-full border border-cream-border rounded-xl px-4 py-3 text-brown bg-white placeholder-brown-muted/50 focus:outline-none focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy transition;
   }
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+    @apply bg-white rounded-2xl shadow-sm border border-cream-border p-6;
   }
-  .section-title {
-    @apply text-2xl font-bold text-gray-900;
+  .gold-divider {
+    @apply w-16 h-0.5 bg-gold-warm mx-auto;
+  }
+  .label-gold {
+    @apply text-xs font-semibold uppercase tracking-widest text-gold-warm;
   }
 }
 
@@ -48,9 +54,9 @@
   }
 }
 
-/* Usher dashboard notification pulse */
+/* New order pulse */
 @keyframes pulse-new {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(234, 179, 8, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(197, 163, 59, 0.5); }
+  50% { box-shadow: 0 0 0 14px rgba(197, 163, 59, 0); }
 }
 .order-new { animation: pulse-new 2s ease-in-out 3; }

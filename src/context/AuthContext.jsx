@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
+const ADMIN_EMAIL = 'patkatech@gmail.com'
+
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
@@ -49,12 +51,29 @@ export function AuthProvider({ children }) {
     if (error) throw error
   }
 
+  async function loginWithGoogle() {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/dashboard` },
+    })
+    if (error) throw error
+  }
+
   async function logout() {
     await supabase.auth.signOut()
   }
 
+  const isAdmin = session?.user?.email === ADMIN_EMAIL
+  const isApproved = isAdmin || organizer?.status === 'approved'
+  const isPending = organizer?.status === 'pending'
+  const isRejected = organizer?.status === 'rejected'
+
   return (
-    <AuthContext.Provider value={{ session, organizer, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{
+      session, organizer, loading,
+      isAdmin, isApproved, isPending, isRejected,
+      signup, login, loginWithGoogle, logout,
+    }}>
       {children}
     </AuthContext.Provider>
   )

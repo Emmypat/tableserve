@@ -7,6 +7,8 @@ import UsherGuard from './components/auth/UsherGuard'
 import Landing from './pages/Landing'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
+import PendingApproval from './pages/PendingApproval'
+import Approvals from './pages/admin/Approvals'
 import Dashboard from './pages/organizer/Dashboard'
 import EventSetup from './pages/organizer/EventSetup'
 import TableManagement from './pages/organizer/TableManagement'
@@ -27,6 +29,8 @@ export default function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/pending" element={<PendingApproval />} />
+            <Route path="/admin/approvals" element={<Approvals />} />
 
             {/* Organizer (protected) */}
             <Route path="/dashboard" element={<OrganizerGuard><Dashboard /></OrganizerGuard>} />

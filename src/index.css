@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-green-dark text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-mid transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-gold {
+    @apply bg-gold text-white px-6 py-3 rounded-xl font-semibold hover:bg-gold-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-outline {
+    @apply border-2 border-green-dark text-green-dark px-6 py-3 rounded-xl font-semibold hover:bg-green-pale transition-colors;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors;
+  }
+  .input-field {
+    @apply w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-dark/30 focus:border-green-dark transition;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+  .section-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+}
+
+/* Print styles for QR codes */
+@media print {
+  .no-print { display: none !important; }
+  .print-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+  }
+  body { background: white; }
+  .print-card {
+    border: 1px solid #ddd;
+    padding: 16px;
+    text-align: center;
+    break-inside: avoid;
+  }
+}
+
+/* Usher dashboard notification pulse */
+@keyframes pulse-new {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(234, 179, 8, 0); }
+}
+.order-new { animation: pulse-new 2s ease-in-out 3; }

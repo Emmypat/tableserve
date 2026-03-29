@@ -56,16 +56,16 @@ ON CONFLICT DO NOTHING;
 --    Run the INSERT, then run the UPDATE below separately if needed.
 INSERT INTO tables (event_id, table_number, table_name, seats_count, status)
 VALUES
-  ('bamai-kazah-2026', 1,  'Table 1',  10, 'available'),
-  ('bamai-kazah-2026', 2,  'Table 2',  10, 'available'),
-  ('bamai-kazah-2026', 3,  'Table 3',  10, 'available'),
-  ('bamai-kazah-2026', 4,  'Table 4',  10, 'available'),
-  ('bamai-kazah-2026', 5,  'Table 5',  10, 'available'),
-  ('bamai-kazah-2026', 6,  'Table 6',  10, 'available'),
-  ('bamai-kazah-2026', 7,  'Table 7',  10, 'available'),
-  ('bamai-kazah-2026', 8,  'Table 8',  10, 'available'),
-  ('bamai-kazah-2026', 9,  'Table 9',  10, 'available'),
-  ('bamai-kazah-2026', 10, 'Table 10', 10, 'available')
+  ('bamai-kazah-2026', 1,  'Table 1',  10, 'empty'),
+  ('bamai-kazah-2026', 2,  'Table 2',  10, 'empty'),
+  ('bamai-kazah-2026', 3,  'Table 3',  10, 'empty'),
+  ('bamai-kazah-2026', 4,  'Table 4',  10, 'empty'),
+  ('bamai-kazah-2026', 5,  'Table 5',  10, 'empty'),
+  ('bamai-kazah-2026', 6,  'Table 6',  10, 'empty'),
+  ('bamai-kazah-2026', 7,  'Table 7',  10, 'empty'),
+  ('bamai-kazah-2026', 8,  'Table 8',  10, 'empty'),
+  ('bamai-kazah-2026', 9,  'Table 9',  10, 'empty'),
+  ('bamai-kazah-2026', 10, 'Table 10', 10, 'empty')
 ON CONFLICT DO NOTHING;
 
 -- 5. Assign ushers to tables (round-robin)

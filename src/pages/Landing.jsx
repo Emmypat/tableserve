@@ -13,21 +13,37 @@ export default function Landing() {
       <div className="bg-burgundy-deep text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212,175,55,0.3) 40px, rgba(212,175,55,0.3) 41px)' }} />
-        <div className="relative max-w-2xl mx-auto px-6 py-20 text-center">
+        <div className="relative max-w-2xl mx-auto px-6 py-16 text-center">
           <div className="label-gold mb-4">Wedding Reception</div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold leading-tight mb-3 text-white">
             {WEDDING_NAME}
           </h1>
           <div className="gold-divider mt-4 mb-6" />
           <p className="text-gold-light text-lg mb-1">{WEDDING_DATE}</p>
-          <p className="text-white/60 text-sm">{WEDDING_VENUE}</p>
+          <p className="text-white/60 text-sm mb-8">{WEDDING_VENUE}</p>
+
+          {/* Staff login buttons — visible immediately in hero */}
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Link
+              to="/usher/login"
+              className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 text-white font-semibold px-6 py-3 rounded-full transition text-sm"
+            >
+              <UserCheck size={16} /> Usher Login
+            </Link>
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 bg-gold-warm hover:bg-gold-dark border border-gold-warm text-white font-semibold px-6 py-3 rounded-full transition text-sm"
+            >
+              <ShieldCheck size={16} /> Admin Login
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Gold bar */}
       <div className="h-1 bg-gradient-to-r from-transparent via-gold-warm to-transparent" />
 
-      <div className="max-w-2xl mx-auto px-6 py-14">
+      <div className="max-w-2xl mx-auto px-6 py-12">
 
         {/* Welcome */}
         <div className="text-center mb-10">
@@ -39,8 +55,8 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* How it works */}
-        <div className="grid grid-cols-3 gap-4 mb-12">
+        {/* How it works — informational only */}
+        <div className="grid grid-cols-3 gap-4 mb-10">
           {[
             { icon: QrCode,   title: 'Scan & Order',     desc: 'Use the QR code on your table' },
             { icon: Utensils, title: 'Choose Your Meal', desc: 'Browse the full menu'           },
@@ -56,42 +72,15 @@ export default function Landing() {
           ))}
         </div>
 
-        {/* Guest CTA */}
-        <div className="bg-white border border-cream-border rounded-2xl p-8 shadow-sm mb-6 text-center">
+        {/* QR hint */}
+        <div className="bg-white border border-cream-border rounded-2xl p-8 shadow-sm text-center mb-10">
           <div className="w-16 h-16 bg-burgundy-pale rounded-full flex items-center justify-center mx-auto mb-4">
             <QrCode size={32} className="text-burgundy" />
           </div>
           <h3 className="font-serif text-xl text-brown mb-2">Ready to Order?</h3>
-          <p className="text-brown-muted text-sm leading-relaxed mb-0">
+          <p className="text-brown-muted text-sm leading-relaxed">
             Find the QR code card on your table and point your phone camera at it to open the menu.
           </p>
-        </div>
-
-        <div className="gold-divider mb-10" />
-
-        {/* Staff access */}
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <Link
-            to="/usher/login"
-            className="bg-white border border-cream-border rounded-2xl p-6 shadow-sm text-center hover:border-burgundy/40 hover:shadow-md transition group"
-          >
-            <div className="w-12 h-12 rounded-full bg-burgundy-pale flex items-center justify-center mx-auto mb-3 group-hover:bg-burgundy group-hover:text-white transition">
-              <UserCheck size={22} className="text-burgundy group-hover:text-white transition" />
-            </div>
-            <div className="font-semibold text-brown text-sm mb-1">Usher Login</div>
-            <div className="text-xs text-brown-muted">Access your orders dashboard</div>
-          </Link>
-
-          <Link
-            to="/admin"
-            className="bg-white border border-cream-border rounded-2xl p-6 shadow-sm text-center hover:border-burgundy/40 hover:shadow-md transition group"
-          >
-            <div className="w-12 h-12 rounded-full bg-burgundy-pale flex items-center justify-center mx-auto mb-3 group-hover:bg-burgundy group-hover:text-white transition">
-              <ShieldCheck size={22} className="text-burgundy group-hover:text-white transition" />
-            </div>
-            <div className="font-semibold text-brown text-sm mb-1">Admin Login</div>
-            <div className="text-xs text-brown-muted">Manage tables, menu & orders</div>
-          </Link>
         </div>
 
         <p className="text-brown-muted/50 text-sm italic font-serif text-center">

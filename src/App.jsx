@@ -7,6 +7,7 @@ import UsherGuard from './components/auth/UsherGuard'
 import Landing from './pages/Landing'
 import AdminLogin from './pages/admin/Login'
 import AdminDashboard from './pages/admin/Dashboard'
+import ResetPassword from './pages/admin/ResetPassword'
 import UsherLogin from './pages/usher/UsherLogin'
 import UsherDashboard from './pages/usher/UsherDashboard'
 import GuestMenu from './pages/guest/GuestMenu'
@@ -23,6 +24,7 @@ export default function App() {
 
             {/* Admin */}
             <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/reset-password" element={<ResetPassword />} />
             <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
 
             {/* Usher */}

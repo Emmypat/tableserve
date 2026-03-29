@@ -437,12 +437,14 @@ function MenuTab({ eventId }) {
 
 // ─── Ushers Tab ───────────────────────────────────────────────────────────────
 function UshersTab({ eventId }) {
-  const [ushers,   setUshers]   = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [adding,   setAdding]   = useState(false)
-  const [name,     setName]     = useState('')
-  const [showPins, setShowPins] = useState({})
-  const [saving,   setSaving]   = useState(false)
+  const [ushers,    setUshers]    = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [adding,    setAdding]    = useState(false)
+  const [name,      setName]      = useState('')
+  const [showPins,  setShowPins]  = useState({})
+  const [saving,    setSaving]    = useState(false)
+  const [editPin,   setEditPin]   = useState({})   // { [usherId]: draftPin }
+  const [savingPin, setSavingPin] = useState({})
 
   useEffect(() => { fetchUshers() }, [eventId])
 
@@ -467,6 +469,25 @@ function UshersTab({ eventId }) {
     const pin = generatePin()
     await supabase.from('ushers').update({ pin }).eq('id', usher.id)
     setUshers(u => u.map(us => us.id === usher.id ? { ...us, pin } : us))
+  }
+
+  function startEditPin(usher) {
+    setEditPin(p => ({ ...p, [usher.id]: usher.pin }))
+    setShowPins(p => ({ ...p, [usher.id]: true }))
+  }
+
+  function cancelEditPin(usherId) {
+    setEditPin(p => { const { [usherId]: _, ...rest } = p; return rest })
+  }
+
+  async function saveCustomPin(usher) {
+    const pin = (editPin[usher.id] || '').trim()
+    if (!/^\d{4}$/.test(pin)) return
+    setSavingPin(p => ({ ...p, [usher.id]: true }))
+    await supabase.from('ushers').update({ pin }).eq('id', usher.id)
+    setUshers(u => u.map(us => us.id === usher.id ? { ...us, pin } : us))
+    cancelEditPin(usher.id)
+    setSavingPin(p => ({ ...p, [usher.id]: false }))
   }
 
   async function deleteUsher(usherId) {
@@ -527,17 +548,44 @@ function UshersTab({ eventId }) {
                       <div className="font-semibold text-brown">{usher.name}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className="text-sm text-brown-muted font-medium">PIN:</span>
-                    <span className="font-mono text-xl font-bold text-burgundy tracking-widest">
-                      {showPins[usher.id] ? usher.pin : '••••'}
-                    </span>
-                    <button onClick={() => setShowPins(p => ({ ...p, [usher.id]: !p[usher.id] }))} className="text-brown-muted hover:text-burgundy">
-                      {showPins[usher.id] ? <EyeOff size={16}/> : <Eye size={16}/>}
-                    </button>
-                    <button onClick={() => regeneratePin(usher)} className="text-brown-muted hover:text-gold-warm">
-                      <RefreshCw size={14}/>
-                    </button>
+                    {editPin[usher.id] !== undefined ? (
+                      <>
+                        <input
+                          className="font-mono text-xl font-bold text-burgundy tracking-widest w-20 border border-burgundy/40 rounded-lg px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-burgundy/30 bg-cream text-center"
+                          maxLength={4}
+                          value={editPin[usher.id]}
+                          onChange={e => setEditPin(p => ({ ...p, [usher.id]: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => saveCustomPin(usher)}
+                          disabled={!/^\d{4}$/.test(editPin[usher.id] || '') || savingPin[usher.id]}
+                          className="text-xs font-semibold bg-burgundy text-white px-3 py-1 rounded-full disabled:opacity-40 hover:bg-burgundy-mid transition"
+                        >
+                          {savingPin[usher.id] ? '…' : 'Save'}
+                        </button>
+                        <button onClick={() => cancelEditPin(usher.id)} className="text-xs text-brown-muted hover:text-brown transition">
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-mono text-xl font-bold text-burgundy tracking-widest">
+                          {showPins[usher.id] ? usher.pin : '••••'}
+                        </span>
+                        <button onClick={() => setShowPins(p => ({ ...p, [usher.id]: !p[usher.id] }))} className="text-brown-muted hover:text-burgundy">
+                          {showPins[usher.id] ? <EyeOff size={16}/> : <Eye size={16}/>}
+                        </button>
+                        <button onClick={() => startEditPin(usher)} title="Set custom PIN" className="text-brown-muted hover:text-burgundy">
+                          <Save size={14}/>
+                        </button>
+                        <button onClick={() => regeneratePin(usher)} title="Auto-generate new PIN" className="text-brown-muted hover:text-gold-warm">
+                          <RefreshCw size={14}/>
+                        </button>
+                      </>
+                    )}
                   </div>
                   {usher.tables?.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">

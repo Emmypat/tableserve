@@ -11,7 +11,7 @@ const WEDDING_NAME = import.meta.env.VITE_WEDDING_NAME || 'Bamai & Kazah'
 export default function UsherDashboard() {
   const { usher, logoutUsher } = useUsher()
   const navigate = useNavigate()
-  const { orders, setOrders } = useOrders(usher?.event_id, { usher_id: usher?.id })
+  const { orders, setOrders } = useOrders(usher?.event_id)
   const [newOrderIds, setNewOrderIds] = useState(new Set())
   const prevOrderCount = useRef(0)
 

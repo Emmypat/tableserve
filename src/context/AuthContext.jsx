@@ -28,8 +28,19 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
+  async function requestPasswordReset(email) {
+    const redirectTo = (import.meta.env.VITE_APP_URL || window.location.origin) + '/admin/reset-password'
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    if (error) throw error
+  }
+
+  async function updatePassword(newPassword) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+  }
+
   return (
-    <AuthContext.Provider value={{ session, loading, login, logout }}>
+    <AuthContext.Provider value={{ session, loading, login, logout, requestPasswordReset, updatePassword }}>
       {children}
     </AuthContext.Provider>
   )

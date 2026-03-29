@@ -14,6 +14,7 @@ export default function GuestMenu() {
   const [eventId, setEventId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const [loadError, setLoadError] = useState('')
 
   const [guestName, setGuestName] = useState('')
   const [quantities, setQuantities] = useState({})
@@ -25,24 +26,32 @@ export default function GuestMenu() {
 
   useEffect(() => {
     async function load() {
-      // Fetch the single event
-      const { data: ev } = await supabase
-        .from('events').select('id').order('created_at').limit(1).single()
-      if (!ev) { setNotFound(true); setLoading(false); return }
+      try {
+        // Fetch the single event
+        const { data: ev, error: evErr } = await supabase
+          .from('events').select('id').order('created_at').limit(1).single()
+        if (evErr) throw new Error('Event error: ' + evErr.message)
+        if (!ev) { setNotFound(true); setLoading(false); return }
 
-      // Fetch table
-      const { data: tb } = await supabase
-        .from('tables').select('*, ushers(id)').eq('id', tableId).eq('event_id', ev.id).single()
-      if (!tb) { setNotFound(true); setLoading(false); return }
+        // Fetch table
+        const { data: tb, error: tbErr } = await supabase
+          .from('tables').select('*, ushers(id)').eq('id', tableId).eq('event_id', ev.id).single()
+        if (tbErr && tbErr.code !== 'PGRST116') throw new Error('Table error: ' + tbErr.message)
+        if (!tb) { setNotFound(true); setLoading(false); return }
 
-      // Fetch menu
-      const { data: items } = await supabase
-        .from('menu_items').select('*').eq('event_id', ev.id).eq('available', true).order('sort_order').order('created_at')
+        // Fetch menu
+        const { data: items, error: menuErr } = await supabase
+          .from('menu_items').select('*').eq('event_id', ev.id).eq('available', true).order('sort_order').order('created_at')
+        if (menuErr) throw new Error('Menu error: ' + menuErr.message)
 
-      setEventId(ev.id)
-      setTable(tb)
-      setMenuItems(items || [])
-      setLoading(false)
+        setEventId(ev.id)
+        setTable(tb)
+        setMenuItems(items || [])
+        setLoading(false)
+      } catch (err) {
+        setLoadError(err.message)
+        setLoading(false)
+      }
     }
     load()
   }, [tableId])
@@ -92,6 +101,17 @@ export default function GuestMenu() {
   if (loading) return (
     <div className="min-h-screen bg-cream flex items-center justify-center">
       <div className="w-10 h-10 border-4 border-burgundy border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+
+  if (loadError) return (
+    <div className="min-h-screen bg-cream flex items-center justify-center px-6 text-center">
+      <div>
+        <AlertCircle size={48} className="text-red-400 mx-auto mb-4" />
+        <h1 className="font-serif text-xl text-brown mb-2">Could not load menu</h1>
+        <p className="text-brown-muted text-sm mb-4">Please ask your usher for help.</p>
+        <code className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg block">{loadError}</code>
+      </div>
     </div>
   )
 

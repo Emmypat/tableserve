@@ -10,6 +10,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import UsherLogin from './pages/usher/UsherLogin'
 import UsherDashboard from './pages/usher/UsherDashboard'
 import GuestMenu from './pages/guest/GuestMenu'
+import ErrorBoundary from './components/ErrorBoundary'
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
             <Route path="/usher/dashboard" element={<UsherGuard><UsherDashboard /></UsherGuard>} />
 
             {/* Guest */}
-            <Route path="/table/:tableId" element={<GuestMenu />} />
+            <Route path="/table/:tableId" element={<ErrorBoundary><GuestMenu /></ErrorBoundary>} />
           </Routes>
         </BrowserRouter>
       </UsherProvider>

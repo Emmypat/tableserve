@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
-import { QrCode, Utensils, Clock } from 'lucide-react'
+import { QrCode, Utensils, Clock, ShieldCheck, UserCheck } from 'lucide-react'
 
-const WEDDING_NAME   = import.meta.env.VITE_WEDDING_NAME   || 'Bamai & Kazah'
-const WEDDING_DATE   = import.meta.env.VITE_WEDDING_DATE   || '11 April 2026'
-const WEDDING_VENUE  = import.meta.env.VITE_WEDDING_VENUE  || 'Epitome Event Center, Barnawa Kaduna'
+const WEDDING_NAME  = import.meta.env.VITE_WEDDING_NAME  || 'Bamai & Kazah'
+const WEDDING_DATE  = import.meta.env.VITE_WEDDING_DATE  || '11 April 2026'
+const WEDDING_VENUE = import.meta.env.VITE_WEDDING_VENUE || 'Epitome Event Center, Barnawa Kaduna'
 
 export default function Landing() {
   return (
@@ -27,21 +27,24 @@ export default function Landing() {
       {/* Gold bar */}
       <div className="h-1 bg-gradient-to-r from-transparent via-gold-warm to-transparent" />
 
-      {/* Welcome section */}
-      <div className="max-w-2xl mx-auto px-6 py-14 text-center">
-        <div className="label-gold mb-3">Welcome</div>
-        <h2 className="font-serif text-3xl text-brown mb-4">Enjoy the Celebration</h2>
-        <p className="text-brown-muted leading-relaxed mb-10">
-          Scan the QR code on your table to browse the menu and place your order.
-          Your usher will bring your food directly to you.
-        </p>
+      <div className="max-w-2xl mx-auto px-6 py-14">
 
-        {/* Feature cards */}
+        {/* Welcome */}
+        <div className="text-center mb-10">
+          <div className="label-gold mb-3">Welcome</div>
+          <h2 className="font-serif text-3xl text-brown mb-4">Enjoy the Celebration</h2>
+          <p className="text-brown-muted leading-relaxed">
+            Scan the QR code on your table to browse the menu and place your order.
+            Your usher will bring your food directly to you.
+          </p>
+        </div>
+
+        {/* How it works */}
         <div className="grid grid-cols-3 gap-4 mb-12">
           {[
-            { icon: QrCode,    title: 'Scan & Order',     desc: 'Use the QR code on your table' },
-            { icon: Utensils,  title: 'Choose Your Meal', desc: 'Browse the full menu' },
-            { icon: Clock,     title: 'Served at Table',  desc: 'Your usher brings it to you' },
+            { icon: QrCode,   title: 'Scan & Order',     desc: 'Use the QR code on your table' },
+            { icon: Utensils, title: 'Choose Your Meal', desc: 'Browse the full menu'           },
+            { icon: Clock,    title: 'Served at Table',  desc: 'Your usher brings it to you'    },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="bg-white border border-cream-border rounded-2xl p-4 shadow-sm text-center">
               <div className="w-10 h-10 rounded-full bg-burgundy-pale flex items-center justify-center mx-auto mb-3">
@@ -53,31 +56,54 @@ export default function Landing() {
           ))}
         </div>
 
-        {/* QR hint */}
-        <div className="bg-white border border-cream-border rounded-2xl p-8 shadow-sm mb-6">
+        {/* Guest CTA */}
+        <div className="bg-white border border-cream-border rounded-2xl p-8 shadow-sm mb-6 text-center">
           <div className="w-16 h-16 bg-burgundy-pale rounded-full flex items-center justify-center mx-auto mb-4">
             <QrCode size={32} className="text-burgundy" />
           </div>
-          <h3 className="font-serif text-xl text-brown mb-2">Find Your Table QR Code</h3>
-          <p className="text-brown-muted text-sm leading-relaxed">
-            Each table has a unique QR code card. Point your phone camera at the code to open the menu and place your order.
+          <h3 className="font-serif text-xl text-brown mb-2">Ready to Order?</h3>
+          <p className="text-brown-muted text-sm leading-relaxed mb-0">
+            Find the QR code card on your table and point your phone camera at it to open the menu.
           </p>
         </div>
 
-        <div className="gold-divider mb-6" />
-        <p className="text-brown-muted text-sm italic font-serif">
+        <div className="gold-divider mb-10" />
+
+        {/* Staff access */}
+        <div className="grid grid-cols-2 gap-4 mb-10">
+          <Link
+            to="/usher/login"
+            className="bg-white border border-cream-border rounded-2xl p-6 shadow-sm text-center hover:border-burgundy/40 hover:shadow-md transition group"
+          >
+            <div className="w-12 h-12 rounded-full bg-burgundy-pale flex items-center justify-center mx-auto mb-3 group-hover:bg-burgundy group-hover:text-white transition">
+              <UserCheck size={22} className="text-burgundy group-hover:text-white transition" />
+            </div>
+            <div className="font-semibold text-brown text-sm mb-1">Usher Login</div>
+            <div className="text-xs text-brown-muted">Access your orders dashboard</div>
+          </Link>
+
+          <Link
+            to="/admin"
+            className="bg-white border border-cream-border rounded-2xl p-6 shadow-sm text-center hover:border-burgundy/40 hover:shadow-md transition group"
+          >
+            <div className="w-12 h-12 rounded-full bg-burgundy-pale flex items-center justify-center mx-auto mb-3 group-hover:bg-burgundy group-hover:text-white transition">
+              <ShieldCheck size={22} className="text-burgundy group-hover:text-white transition" />
+            </div>
+            <div className="font-semibold text-brown text-sm mb-1">Admin Login</div>
+            <div className="text-xs text-brown-muted">Manage tables, menu & orders</div>
+          </Link>
+        </div>
+
+        <p className="text-brown-muted/50 text-sm italic font-serif text-center">
           "May your day be as beautiful as your love story."
         </p>
       </div>
 
       {/* Footer */}
       <footer className="border-t border-cream-border py-6 text-center">
-        <p className="text-xs text-brown-muted/50 mb-2">
+        <p className="text-xs text-brown-muted/40">
           TableServe · {WEDDING_NAME} · {WEDDING_DATE}
         </p>
-        <Link to="/admin" className="text-xs text-brown-muted/30 hover:text-brown-muted transition">
-          Admin Login
-        </Link>
       </footer>
     </div>
   )

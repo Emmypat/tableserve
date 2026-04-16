@@ -6,17 +6,22 @@ export function useTables(eventId) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!eventId) return
+    if (!eventId) { setLoading(false); return }
 
     async function fetchTables() {
       setLoading(true)
-      const { data } = await supabase
-        .from('tables')
-        .select('*, ushers(id, name)')
-        .eq('event_id', eventId)
-        .order('table_number', { ascending: true })
-      setTables(data || [])
-      setLoading(false)
+      try {
+        const { data } = await supabase
+          .from('tables')
+          .select('*, ushers(id, name)')
+          .eq('event_id', eventId)
+          .order('table_number', { ascending: true })
+        setTables(data || [])
+      } catch (e) {
+        console.error('fetchTables error', e)
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchTables()

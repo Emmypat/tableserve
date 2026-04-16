@@ -13,7 +13,7 @@ export default function Landing() {
       <div className="bg-burgundy-deep text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212,175,55,0.3) 40px, rgba(212,175,55,0.3) 41px)' }} />
-        <div className="relative max-w-2xl mx-auto px-6 py-16 text-center">
+        <div className="relative max-w-2xl mx-auto px-4 py-12 sm:px-6 sm:py-16 text-center">
           <div className="label-gold mb-4">Wedding Reception</div>
           <h1 className="font-serif text-5xl md:text-6xl font-bold leading-tight mb-3 text-white">
             {WEDDING_NAME}
@@ -43,7 +43,7 @@ export default function Landing() {
       {/* Gold bar */}
       <div className="h-1 bg-gradient-to-r from-transparent via-gold-warm to-transparent" />
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="max-w-2xl mx-auto px-4 py-10 sm:px-6 sm:py-12">
 
         {/* Welcome */}
         <div className="text-center mb-10">
@@ -56,7 +56,7 @@ export default function Landing() {
         </div>
 
         {/* How it works — informational only */}
-        <div className="grid grid-cols-3 gap-4 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
           {[
             { icon: QrCode,   title: 'Scan & Order',     desc: 'Use the QR code on your table' },
             { icon: Utensils, title: 'Choose Your Meal', desc: 'Browse the full menu'           },
@@ -73,7 +73,7 @@ export default function Landing() {
         </div>
 
         {/* QR hint */}
-        <div className="bg-white border border-cream-border rounded-2xl p-8 shadow-sm text-center mb-10">
+        <div className="bg-white border border-cream-border rounded-2xl p-5 sm:p-8 shadow-sm text-center mb-10">
           <div className="w-16 h-16 bg-burgundy-pale rounded-full flex items-center justify-center mx-auto mb-4">
             <QrCode size={32} className="text-burgundy" />
           </div>
@@ -89,9 +89,12 @@ export default function Landing() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-cream-border py-6 text-center">
+      <footer className="border-t border-cream-border py-6 text-center space-y-1">
         <p className="text-xs text-brown-muted/40">
           TableServe · {WEDDING_NAME} · {WEDDING_DATE}
+        </p>
+        <p className="text-xs tracking-widest uppercase font-semibold text-amber-600/60">
+          Powered by Yerima Shettima
         </p>
       </footer>
     </div>

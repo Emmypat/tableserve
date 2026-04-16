@@ -6,19 +6,24 @@ export function useOrders(eventId, { usher_id } = {}) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!eventId) return
+    if (!eventId) { setLoading(false); return }
 
     async function fetchOrders() {
       setLoading(true)
-      let q = supabase
-        .from('orders')
-        .select('*, tables(table_name, table_number)')
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: false })
-      if (usher_id) q = q.or(`usher_id.eq.${usher_id},usher_id.is.null`)
-      const { data } = await q
-      setOrders(data || [])
-      setLoading(false)
+      try {
+        let q = supabase
+          .from('orders')
+          .select('*, tables(table_name, table_number)')
+          .eq('event_id', eventId)
+          .order('created_at', { ascending: false })
+        if (usher_id) q = q.or(`usher_id.eq.${usher_id},usher_id.is.null`)
+        const { data } = await q
+        setOrders(data || [])
+      } catch (e) {
+        console.error('fetchOrders error', e)
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchOrders()

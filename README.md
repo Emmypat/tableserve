@@ -1,144 +1,213 @@
-# TableServe
+# TableServe — Real-Time Event Food Ordering Platform
 
-**Seamless food service for your event**
+> A real-time, QR-code-driven table ordering and food service management system for weddings and events. Guests scan a QR code at their table, browse the menu, and place orders that appear instantly on usher and admin dashboards — no app download required.
 
-A food ordering and table service management platform for weddings and events in Nigeria.
+**Live demo:** [tableserve-eight.vercel.app](https://tableserve-eight.vercel.app)
+
+---
+
+## What It Does
+
+TableServe digitises food service at events. Each table gets a unique QR code. Guests scan it, see the menu, and place orders. Ushers receive orders in real time on their dashboard and mark them served. Admins have full oversight of all tables, orders, and staff.
+
+Built for the Bamai & Kazah wedding (2026) with 60 tables and a multi-course menu, then generalised as a reusable platform for any event organiser.
+
+---
+
+## Features
+
+### Guest Experience
+| Feature | Description |
+|---------|-------------|
+| **QR-Code Ordering** | Each table has a unique QR code; guests scan to access the menu instantly |
+| **Menu Browsing** | Categorised menu (Starters, Mains, Desserts, Drinks) with photos and descriptions |
+| **Individual & Table Orders** | Guests can order individually or place a combined table order |
+| **Special Requests** | Free-text field for dietary notes or custom instructions |
+| **No Login Required** | Guests access the ordering interface directly from the QR link — no account, no app |
+
+### Usher Interface
+| Feature | Description |
+|---------|-------------|
+| **PIN Login** | Ushers authenticate with a 4-digit PIN — fast and frictionless for event staff |
+| **Real-Time Orders** | New orders appear instantly via Supabase Realtime subscriptions |
+| **Mark as Served** | One-tap to mark an order as delivered; table status updates automatically |
+| **Audio + Vibration Alerts** | Device-level alerts on new order arrival |
+
+### Admin Dashboard
+| Feature | Description |
+|---------|-------------|
+| **Event Management** | Create and configure events, menus, and ushers |
+| **Live Table Overview** | Visual grid of all tables with real-time status (empty / ordered / served) |
+| **Order Analytics** | Per-table and per-item order history with timestamps |
+| **Usher Management** | Create ushers, assign PINs, track activity |
+| **Menu Editor** | Add, edit, and reorder menu items with photo upload to Supabase Storage |
+| **QR Code Print Sheet** | Generate and download a printable PDF of all table QR codes (6 per A4 page) |
+| **CSV Export** | Export full order history to CSV |
+| **Bulk Table Reset** | Clear all orders and regenerate fresh QR codes for a new event in one action |
 
 ---
 
 ## Tech Stack
 
-- **Frontend**: React 18 + Vite + Tailwind CSS
-- **Backend**: Supabase (Auth, PostgreSQL, Real-time, Storage)
-- **Hosting**: Vercel
-- **QR Codes**: qrcode.react
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite 6, Tailwind CSS 3 |
+| Database | Supabase (PostgreSQL) |
+| Real-time | Supabase Realtime (postgres_changes subscriptions) |
+| Auth | Supabase Auth (organiser accounts) + PIN-based (ushers) |
+| Storage | Supabase Storage (menu item photos) |
+| Email | Resend API via Supabase Edge Function (Deno) |
+| QR Generation | qrcode (Node.js) + qrcode.react (browser SVG) |
+| PDF Generation | PDFKit (Node.js) |
+| Email Delivery | AWS SES v2 (bulk QR PDF delivery) |
+| Hosting | Vercel (automatic deploys from GitHub) |
+| PWA | vite-plugin-pwa (offline support, installable) |
+
+---
+
+## Architecture
+
+```
+                    ┌────────────────────────────┐
+                    │  Browser (React 18 + Vite)  │
+                    │  Tailwind CSS · PWA enabled  │
+                    └───────────┬────────────────┘
+                                │
+                    ┌───────────▼────────────────┐
+                    │         Vercel CDN          │
+                    │   (auto-deploy on push)     │
+                    └───────────┬────────────────┘
+                                │
+                    ┌───────────▼────────────────┐
+                    │   Supabase (Backend)        │
+                    │                            │
+                    │  ┌─────────────────────┐   │
+                    │  │  PostgreSQL DB       │   │
+                    │  │  ┌───────┐ ┌──────┐ │   │
+                    │  │  │tables │ │orders│ │   │
+                    │  │  │ushers │ │menus │ │   │
+                    │  │  └───────┘ └──────┘ │   │
+                    │  └─────────────────────┘   │
+                    │                            │
+                    │  ┌─────────────────────┐   │
+                    │  │  Realtime Engine     │   │
+                    │  │  (WebSocket push)    │   │
+                    │  └─────────────────────┘   │
+                    │                            │
+                    │  ┌─────────────────────┐   │
+                    │  │  Edge Functions      │   │
+                    │  │  (Deno — Resend API) │   │
+                    │  └─────────────────────┘   │
+                    │                            │
+                    │  ┌─────────────────────┐   │
+                    │  │  Storage             │   │
+                    │  │  (menu photos)       │   │
+                    │  └─────────────────────┘   │
+                    └────────────────────────────┘
+
+Real-time data flow:
+  Guest places order → INSERT into orders table
+    → Supabase Realtime fires postgres_changes event
+      → Usher and Admin dashboards update instantly (no polling)
+```
+
+---
+
+## Database Schema
+
+```sql
+events       — organiser-owned event records (name, date, venue, slug)
+menu_items   — food items per event (name, category, photo_url, available)
+ushers       — event staff with 4-digit PINs
+tables       — per-table records with QR URLs and status (empty/ordered/served)
+orders       — guest orders (items: JSONB, status: pending/served, timestamps)
+```
+
+Row-Level Security (RLS) is enforced on all tables — organisers can only access their own events; guests can only read menus and insert orders for their specific table.
+
+---
+
+## QR Code Generation & Distribution
+
+A Node.js CLI script handles bulk table setup and QR code delivery:
+
+```bash
+node scripts/setup-tables.mjs
+```
+
+What it does:
+1. Clears all existing orders and tables for the event
+2. Creates 60 fresh tables (Table 1–60) in Supabase
+3. Generates 60 QR code PNGs in memory (300px, branded burgundy)
+4. Builds a print-ready A4 PDF (6 codes per page, 10 pages)
+5. Uploads the PDF to AWS S3 with a 7-day pre-signed download URL
+6. Emails the PDF with attachment to the organiser via AWS SES v2
 
 ---
 
 ## Local Development
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 npm install
 
-# 2. Set up environment variables
+# Set environment variables
 cp .env.example .env.local
-# Fill in your Supabase URL and anon key
+# Add your Supabase URL, anon key, and app URL
 
-# 3. Run dev server
+# Run the database schema
+# Paste supabase/schema.sql into the Supabase SQL Editor
+
+# Start dev server
 npm run dev
-# → http://localhost:5173
 ```
-
----
-
-## Deploying to Vercel
-
-### Step 1 — Push to GitHub
-
-Make sure your code is on GitHub. If not:
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/tableserve.git
-git push -u origin main
-```
-
-### Step 2 — Import to Vercel
-
-1. Go to [vercel.com](https://vercel.com) and sign in
-2. Click **Add New → Project**
-3. Find and import your **tableserve** GitHub repository
-4. Vercel will auto-detect it as a Vite project — leave build settings as-is (they are set in `vercel.json`)
-5. **Before clicking Deploy**, go to the **Environment Variables** section
-
-### Step 3 — Add Environment Variables in Vercel
-
-In the Vercel project settings, add these variables:
-
-| Variable | Value |
-|---|---|
-| `VITE_SUPABASE_URL` | `https://sydloyvsptcyhmkfwjdt.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anon key |
-| `VITE_APP_URL` | Your Vercel deployment URL (e.g. `https://tableserve.vercel.app`) |
-
-> **Note**: `VITE_APP_URL` is used to generate QR code links for tables.
-> Set it to your actual Vercel domain after the first deployment.
-
-### Step 4 — Deploy
-
-Click **Deploy**. Vercel will build and deploy the app in ~1 minute.
-
-### Step 5 — Automatic Deployments
-
-Every `git push` to the `main` branch will automatically trigger a new deployment on Vercel. No manual steps needed.
-
-```bash
-# Make changes, then:
-git add .
-git commit -m "Your changes"
-git push
-# → Vercel deploys automatically
-```
-
----
-
-## Environment Variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_SUPABASE_URL` | ✅ | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | ✅ | Supabase anon/public key |
-| `VITE_APP_URL` | ✅ | Your production URL (used in QR codes) |
-
----
-
-## Database Setup
-
-Run `supabase/schema.sql` in your **Supabase SQL Editor** to create all tables, RLS policies, and enable real-time.
-
----
-
-## User Flows
-
-### Organizer
-1. Sign up at `/signup`
-2. Create an event at `/dashboard`
-3. Add menu items + photos at `/event/:id/setup`
-4. Add tables and generate QR codes at `/event/:id/tables`
-5. Add ushers at `/event/:id/ushers`
-6. Set event status to **Active**
-7. Print QR codes at `/event/:id/qrcodes`
-8. Monitor orders live at `/event/:id/orders`
-
-### Usher
-1. Go to `/usher/login`
-2. Select their event and enter 4-digit PIN
-3. Dashboard shows real-time orders for assigned tables
-4. Tap **Mark as Served** when food is delivered
-
-### Guest
-1. Scan QR code on the table
-2. Choose **Individual** or **Table** ordering mode
-3. Select items, add special requests, submit
 
 ---
 
 ## Project Structure
 
 ```
-src/
-├── context/         # Auth + Usher session state
-├── hooks/           # useOrders, useTables (real-time)
-├── lib/             # Supabase client
-├── pages/
-│   ├── organizer/   # Dashboard, EventSetup, Tables, Ushers, Orders, QRCodes
-│   ├── usher/       # Login, Dashboard
-│   └── guest/       # GuestMenu (public)
-├── utils/           # Helpers, formatters
-└── components/      # Layout, Auth guards
-supabase/
-└── schema.sql       # Full database schema + RLS policies
+├── src/
+│   ├── pages/
+│   │   ├── Landing.jsx          # Public landing page
+│   │   ├── admin/
+│   │   │   ├── Dashboard.jsx    # Full admin interface (tables, orders, menus, ushers)
+│   │   │   └── Login.jsx
+│   │   ├── usher/
+│   │   │   ├── UsherLogin.jsx   # PIN-based login
+│   │   │   └── UsherDashboard.jsx
+│   │   └── guest/
+│   │       └── GuestMenu.jsx    # QR-linked ordering interface
+│   ├── hooks/
+│   │   ├── useOrders.js         # Realtime orders subscription
+│   │   └── useTables.js         # Realtime tables subscription
+│   ├── context/
+│   │   ├── AuthContext.jsx      # Organiser auth state
+│   │   └── UsherContext.jsx     # Usher session state
+│   └── lib/
+│       └── supabase.js          # Supabase client
+├── supabase/
+│   ├── schema.sql               # Full DB schema + RLS policies
+│   ├── seed.sql                 # Test event with menu and tables
+│   └── functions/
+│       └── notify-admin/        # Deno edge function (Resend email)
+└── scripts/
+    └── setup-tables.mjs         # Bulk QR generation + S3 upload + SES email
 ```
+
+---
+
+## Highlights
+
+- **Real-time without polling** — all dashboards update instantly using Supabase Realtime WebSocket subscriptions; no `setInterval`, no page refreshes
+- **Zero-friction guest flow** — guests need only a phone camera; no account, no app, no friction
+- **PWA** — installable on iOS and Android; works offline for menu browsing
+- **Automated QR delivery pipeline** — one command resets all tables, generates 60 QR codes, builds a 10-page print-ready PDF, and emails it as an attachment via SES
+- **Row-Level Security** — all Supabase tables are protected by RLS policies; data isolation is enforced at the database layer, not just the application layer
+- **Production-tested** — deployed for 60 tables at the Bamai & Kazah wedding, April 2026
+
+---
+
+## Author
+
+Built by **Yerima Shettima** · [GitHub @Emmypat](https://github.com/Emmypat)

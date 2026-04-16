@@ -31,7 +31,7 @@ function Spinner() {
 
 function SectionHead({ title, subtitle, action }) {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
       <div>
         <h2 className="font-serif text-2xl text-brown">{title}</h2>
         {subtitle && <p className="text-brown-muted text-sm mt-0.5">{subtitle}</p>}
@@ -115,7 +115,7 @@ function OrdersTab({ eventId }) {
         <div className="space-y-3">
           {filtered.map(order => (
             <div key={order.id} className={`card border-l-4 ${order.status === 'served' ? 'border-l-green-400' : 'border-l-gold-warm'}`}>
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
                     <span className="font-serif font-bold text-xl text-brown">{order.tables?.table_name}</span>
@@ -142,12 +142,12 @@ function OrdersTab({ eventId }) {
                 </div>
                 {order.status === 'pending' && (
                   <button onClick={() => markServed(order.id, order.table_id)}
-                    className="flex-shrink-0 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-full font-semibold transition">
+                    className="w-full sm:w-auto flex-shrink-0 bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2.5 rounded-full font-semibold transition text-center">
                     Mark Served
                   </button>
                 )}
                 {order.status === 'served' && order.served_at && (
-                  <div className="text-xs text-green-600 flex-shrink-0">
+                  <div className="text-xs text-green-600 sm:flex-shrink-0">
                     <CheckCircle2 size={14} className="inline mr-1" />Served {formatTime(order.served_at)}
                   </div>
                 )}
@@ -239,7 +239,7 @@ function TablesTab({ eventId }) {
           <p>No tables yet. Add tables to generate QR codes.</p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {tables.map(table => {
             const st = TABLE_STATUS[table.status] || TABLE_STATUS.empty
             const qr = table.qr_url || `${APP_URL}/table/${table.id}`
@@ -259,7 +259,7 @@ function TablesTab({ eventId }) {
                   {ushers.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                 </select>
                 <button onClick={() => deleteTable(table.id)}
-                  className="mt-2 w-full text-xs text-red-400 hover:text-red-600 flex items-center justify-center gap-1 py-1 rounded-lg hover:bg-red-50 transition">
+                  className="mt-2 w-full text-xs text-red-400 hover:text-red-600 flex items-center justify-center gap-1 py-2 rounded-lg hover:bg-red-50 transition">
                   <Trash2 size={12} /> Delete
                 </button>
               </div>
@@ -283,9 +283,10 @@ function MenuTab({ eventId }) {
   const fileRef = useRef()
 
   useEffect(() => {
-    if (!eventId) return
+    if (!eventId) { setLoading(false); return }
     supabase.from('menu_items').select('*').eq('event_id', eventId).order('sort_order').order('created_at')
       .then(({ data }) => { setMenuItems(data || []); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [eventId])
 
   async function uploadPhoto(file) {
@@ -350,7 +351,7 @@ function MenuTab({ eventId }) {
       {editingItem !== null && (
         <div className="card mb-6 border-2 border-burgundy/20">
           <h3 className="font-semibold text-brown mb-4">{editingItem === 'new' ? 'New Menu Item' : 'Edit Item'}</h3>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-brown-muted mb-1">Item Name *</label>
               <input className="input-field" placeholder="Jollof Rice" value={itemForm.name}
@@ -420,10 +421,10 @@ function MenuTab({ eventId }) {
                     {item.available ? <CheckCircle size={13}/> : <XCircle size={13}/>}
                     <span>{item.available ? 'Available' : 'Unavailable'}</span>
                   </button>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                  <div className="flex gap-1 sm:opacity-0 sm:group-hover:opacity-100 transition">
                     <button onClick={() => { setEditingItem(item.id); setItemForm({ name: item.name, description: item.description || '', category: item.category, available: item.available, photo_url: item.photo_url || '' }) }}
-                      className="p-1.5 text-brown-muted hover:text-burgundy"><Save size={14}/></button>
-                    <button onClick={() => deleteItem(item.id)} className="p-1.5 text-brown-muted hover:text-red-500"><Trash2 size={14}/></button>
+                      className="p-2.5 text-brown-muted hover:text-burgundy"><Save size={14}/></button>
+                    <button onClick={() => deleteItem(item.id)} className="p-2.5 text-brown-muted hover:text-red-500"><Trash2 size={14}/></button>
                   </div>
                 </div>
               ))}
@@ -449,10 +450,15 @@ function UshersTab({ eventId }) {
   useEffect(() => { fetchUshers() }, [eventId])
 
   async function fetchUshers() {
-    if (!eventId) return
-    const { data } = await supabase.from('ushers').select(`*, tables(id, table_name, table_number)`).eq('event_id', eventId).order('created_at')
-    setUshers(data || [])
-    setLoading(false)
+    if (!eventId) { setLoading(false); return }
+    try {
+      const { data } = await supabase.from('ushers').select(`*, tables(id, table_name, table_number)`).eq('event_id', eventId).order('created_at')
+      setUshers(data || [])
+    } catch (e) {
+      console.error('fetchUshers error', e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function addUsher(e) {
@@ -538,7 +544,7 @@ function UshersTab({ eventId }) {
         <div className="space-y-4">
           {ushers.map(usher => (
             <div key={usher.id} className="card">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 rounded-full bg-burgundy text-white flex items-center justify-center font-bold font-serif text-lg">
@@ -616,9 +622,10 @@ function QRCodesTab({ eventId }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!eventId) return
+    if (!eventId) { setLoading(false); return }
     supabase.from('tables').select('*').eq('event_id', eventId).order('table_number')
       .then(({ data }) => { setTables(data || []); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [eventId])
 
   function getQrUrl(table) { return table.qr_url || `${APP_URL}/table/${table.id}` }
@@ -641,7 +648,7 @@ function QRCodesTab({ eventId }) {
           <p>No tables yet. Add tables first.</p>
         </div>
       ) : (
-        <div className="print-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="print-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {tables.map(table => (
             <div key={table.id} className="print-card bg-white border border-cream-border rounded-2xl p-5 text-center flex flex-col items-center gap-2">
               <div className="label-gold text-xs">{WEDDING_NAME}</div>
@@ -663,16 +670,25 @@ function QRCodesTab({ eventId }) {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function AdminDashboard() {
-  const { logout } = useAuth()
+  const { logout, session } = useAuth()
   const navigate   = useNavigate()
   const [tab, setTab]       = useState('orders')
   const [event, setEvent]   = useState(null)
   const [loadingEvent, setLoadingEvent] = useState(true)
+  const [eventError, setEventError] = useState(null)
 
   useEffect(() => {
+    if (!session) return
+    setLoadingEvent(true)
+    setEventError(null)
     supabase.from('events').select('*').order('created_at').limit(1).single()
-      .then(({ data }) => { setEvent(data); setLoadingEvent(false) })
-  }, [])
+      .then(({ data, error }) => {
+        if (error) setEventError(`${error.code}: ${error.message}`)
+        setEvent(data || null)
+        setLoadingEvent(false)
+      })
+      .catch(err => { setEventError(err?.message || 'Network error'); setLoadingEvent(false) })
+  }, [session])
 
   async function handleLogout() {
     await logout()
@@ -682,6 +698,20 @@ export default function AdminDashboard() {
   if (loadingEvent) return (
     <div className="min-h-screen bg-cream flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-burgundy border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+
+  if (eventError || !event) return (
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center gap-4 p-6 text-center">
+      <p className="text-brown font-medium">Could not load event data.</p>
+      {eventError && <p className="text-sm text-brown-muted">{eventError}</p>}
+      <button onClick={() => { setLoadingEvent(true); setEventError(null);
+        supabase.from('events').select('*').order('created_at').limit(1).single()
+          .then(({ data, error }) => { if (error) setEventError(`${error.code}: ${error.message}`); setEvent(data || null); setLoadingEvent(false) })
+          .catch(err => { setEventError(err?.message || 'Network error'); setLoadingEvent(false) })
+      }} className="px-4 py-2 bg-burgundy text-white rounded-lg text-sm">
+        Retry
+      </button>
     </div>
   )
 
@@ -700,13 +730,14 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tab nav */}
-        <div className="max-w-7xl mx-auto px-4 flex gap-1 pb-0 overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 flex pb-0">
           {TABS.map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setTab(key)}
-              className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition ${
+              className={`flex-1 sm:flex-none flex items-center justify-center sm:justify-start gap-1.5 px-2 sm:px-4 py-3 text-sm font-medium border-b-2 transition ${
                 tab === key ? 'border-gold-warm text-white' : 'border-transparent text-white/50 hover:text-white/80'
               }`}>
-              <Icon size={15} /> {label}
+              <Icon size={16} />
+              <span className="hidden sm:inline whitespace-nowrap">{label}</span>
             </button>
           ))}
         </div>
@@ -720,6 +751,12 @@ export default function AdminDashboard() {
         {tab === 'ushers'  && <UshersTab   eventId={event?.id} />}
         {tab === 'qrcodes' && <QRCodesTab  eventId={event?.id} />}
       </main>
+
+      <footer className="border-t border-cream-border py-5 text-center">
+        <p className="text-xs tracking-widest uppercase font-semibold text-amber-600/60">
+          Powered by Yerima Shettima
+        </p>
+      </footer>
     </div>
   )
 }

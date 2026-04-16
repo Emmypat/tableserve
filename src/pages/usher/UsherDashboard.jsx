@@ -105,7 +105,7 @@ export default function UsherDashboard() {
                   {/* Table & Time */}
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <div className="text-4xl font-black text-burgundy leading-none">
+                      <div className="text-2xl sm:text-4xl font-black text-burgundy leading-none">
                         {order.tables?.table_name || 'Table'}
                       </div>
                       {order.guest_name && (
@@ -184,6 +184,12 @@ export default function UsherDashboard() {
           </div>
         )}
       </div>
+
+      <footer className="border-t border-cream-border py-5 text-center">
+        <p className="text-xs tracking-widest uppercase font-semibold text-amber-600/60">
+          Powered by Yerima Shettima
+        </p>
+      </footer>
     </div>
   )
 }

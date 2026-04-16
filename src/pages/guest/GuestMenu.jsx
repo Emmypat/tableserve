@@ -176,7 +176,7 @@ export default function GuestMenu() {
   return (
     <div className="min-h-screen bg-cream pb-32">
       {/* Header */}
-      <div className="bg-burgundy-deep text-white px-6 pt-10 pb-8 relative overflow-hidden">
+      <div className="bg-burgundy-deep text-white px-4 pt-8 pb-6 sm:px-6 sm:pt-10 sm:pb-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212,175,55,0.3) 40px, rgba(212,175,55,0.3) 41px)' }} />
         <div className="relative max-w-xl mx-auto text-center">
@@ -208,7 +208,7 @@ export default function GuestMenu() {
             </h2>
             <div className="space-y-4">
               {groupedItems[cat].map(item => (
-                <div key={item.id} className="flex gap-4 items-start bg-white rounded-2xl p-4 border border-cream-border shadow-sm">
+                <div key={item.id} className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start bg-white rounded-2xl p-4 border border-cream-border shadow-sm">
                   {item.photo_url ? (
                     <img src={item.photo_url} className="w-20 h-20 rounded-xl object-cover flex-shrink-0" alt={item.name} />
                   ) : (
@@ -223,16 +223,16 @@ export default function GuestMenu() {
                       <button
                         onClick={() => setQty(item.id, -1)}
                         disabled={!quantities[item.id]}
-                        className="w-8 h-8 rounded-full bg-cream border border-cream-border hover:bg-cream-border disabled:opacity-30 flex items-center justify-center transition"
+                        className="w-10 h-10 rounded-full bg-cream border border-cream-border hover:bg-cream-border disabled:opacity-30 flex items-center justify-center transition"
                       >
                         <Minus size={14} className="text-brown"/>
                       </button>
-                      <span className="w-6 text-center font-bold text-brown text-lg">
+                      <span className="w-8 text-center font-bold text-brown text-lg">
                         {quantities[item.id] || 0}
                       </span>
                       <button
                         onClick={() => setQty(item.id, 1)}
-                        className="w-8 h-8 rounded-full bg-burgundy hover:bg-burgundy-mid text-white flex items-center justify-center transition"
+                        className="w-10 h-10 rounded-full bg-burgundy hover:bg-burgundy-mid text-white flex items-center justify-center transition"
                       >
                         <Plus size={14} />
                       </button>
@@ -265,6 +265,13 @@ export default function GuestMenu() {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-cream-border py-5 text-center mt-6">
+        <p className="text-xs tracking-widest uppercase font-semibold text-amber-600/60">
+          Powered by Yerima Shettima
+        </p>
+      </footer>
 
       {/* Sticky Cart */}
       {cartCount > 0 && (
